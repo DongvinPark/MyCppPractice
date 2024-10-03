@@ -1,1 +1,7 @@
 *.swp
+
+.idea/
+
+*.xml
+
+*.iml

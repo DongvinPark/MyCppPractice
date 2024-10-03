@@ -78,6 +78,10 @@ class MyArray {
 };// end of MyArray. C++ 에서는 클래스 정의가 끝나는 중괄호에 ; 를 꼭 붙여야 한다!!
 
 MyArray createTemporaryArray(size_t n){
+    // 원래대로라면, 지역변수는 자기 범위를 벗어나면 소멸한다.
+    // 그러나 함수의 결과값이 소멸돼서는 안 되므로, 이동 생성자 또는 이동 연잔자를 통해서
+    // 지역 변수가 새로운 범위로 '이동'할 수 있게 해줘야 한다. 이때 쓸데 없는 복사가 일어나지 않게
+    // 해주는 것이 중요하다.
     MyArray tempArray(n);
     return tempArray;
 }

@@ -46,6 +46,9 @@ class MyArray {
                 std::copy(other.data, other.data + size, data);
                 cout << "Copy Assignment: Copying " << size << " elements\n";
             }
+            // 참조 == 포인터 접근이 완료된 상태 임을 기억하라.
+            // 예를 들어서, &elem[idx]에는별도로 * 접근 할 필요 없이 바로 elem[idx] = 8;이 된다.
+            // 그래서 그냥 this가 아니라, *this 가 리턴돼야 한다.
             return *this;
         }
 
@@ -94,10 +97,15 @@ int main() {
 
     // 생성하는 것들(생성자, 복사생성자, 이동생성자)들은 할당(==객체생성)과 초기화가 ';'로 끝나는
     // 하나의 문장에서 전부 이루어지는 반면,
-    // 이동시키는 것들(복사 연산자, 이동 연산자)은 할당과 초기화가 별개의 ';'로 분리돼 있다는 
-    // 중요한 차이점이 있다.
+    // 이동시키는 것들(복사 연산자, 이동 연산자)은 할당과 초기화가 별개의 ';'로 분리돼 있거나, 
+    // arr_made_before = MyArray(5); 와 같이(이 예시는 Move Assignment Operator다)
     // 또한, 이동 생성자와 이동 연산자는 원래대로라면 지역 범위를 벗어나서 소멸해야 할 지역 변수를
     // MyArray arr = createTemporaryArray(10); 과 같이 지역 범위를 벗어날 수 있게 해주는 역할을 한다.
+    // 그리고 이동 생성자, 이동 연산자 류는 인자가 L-vlaue가 아니라, R-value 참조이므로 && 를 써야 한다.
+    //
+    // 이동 생성자는 컴파일러의 최적화 설정(eliding, RVO 등)에 의해서 대부분 호출이 생략된다.
+    // *** 생성자와 연산자를 구분하는 가장 쉽고 명확한 방법은, MyArray arr = //...;
+    // 같이 sentence의 첫 부분에서 타입이 명시되는지를 보는 것이다. 타입이 명시 되면 생성자 종류다.
 
     MyArray arr1(5); // Constructor
     arr1[0] = 10; // Access element
@@ -121,33 +129,3 @@ int main() {
     // All Destructors will be called automatically at the end
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

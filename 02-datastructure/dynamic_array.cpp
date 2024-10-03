@@ -26,6 +26,10 @@ class MyArray {
         // MyArray arr2 = other_arr_made_before; 이런 코드다.
         MyArray(const MyArray& other) : size(other.size) {
            data = new int[size];
+           // std lib의 배열이 아니라, new 연산으노 만든 Raw 배열을 직접 사용하고 있기 때문에,
+           // other.data 가 배열의 첫 요소의 포인터임을 활용해서 거기에 size를 더해서 복사 원본
+           // 배열의 마지막 요소의 바로 다음 요소를 가리키는 포인터를 넘긴다.
+           // 즉, raw 배열을 다룰 때는 하는 수 없이 포인터 연산을 해야 한다...
            std::copy(other.data, other.data + size, data);
            cout << "Copy Constructor: Copying " << size << " elements\n";
         }

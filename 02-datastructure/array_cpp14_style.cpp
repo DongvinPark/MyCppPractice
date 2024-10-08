@@ -36,7 +36,7 @@ class MyArray {
             if (this != &other) {
                 size = other.size;
                 data = make_unique<int[]>(size);
-                copy(other.data.get(), other.data.get() + size, data.get());
+                std::copy(other.data.get(), other.data.get() + size, data.get());
                 cout << "Copy Assignment: Copying " << size << " elements\n";
             }
             return *this;

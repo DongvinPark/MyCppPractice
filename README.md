@@ -5,5 +5,5 @@
 ## Linux 실행 명령어
 - g++ -o output_file source_file.cpp && ./output_file && rm output_file
 
-## MacOS 실행 명령어
+## MacOS C++14 version 실행 명령어
 - g++ -std=c++14 -o executable source_file.cpp && ./executable && rm executable

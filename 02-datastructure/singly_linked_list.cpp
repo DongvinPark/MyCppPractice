@@ -34,8 +34,17 @@ class SLL_int {
         ~SLL_int(){
             while(head != nullptr){
                 int_node* temp = head;
-                head = head -> getNext(); // 다음 노드를 먼저 가리키게 만든 다음,
-                cout << "release node !! : " << &temp << " : val - " << temp->getElem() << "\n";
+                head = head -> getNext(); // 다음 노드를 먼저 가리키게 만든다.
+                                          
+                                          // &temp를 출력하면 temp가 가리키는 노드의 주소가 아니라,
+                                          // temp 라는 포인터 변수 자체의 메모리 주소가 출력된다.
+                                          // temp라는 포인터 변수가 가리키는 노드 클래스의 주소를
+                                          // 출력하고 싶다면 그냥 cout << temp 라고 해야 한다.
+                                          // 생각해보면, temp 자체가 포인터 변수이기 때문에
+                                          // 여기에 뭔 짓을 하지 않은 채로 출력을 해야 비로소
+                                          // temp가 원래 가리키던 객체(int_node)의 주소를 출력할
+                                          // 수 있는 것.
+                cout << "release node !! : " << temp << " : val : " << temp->getElem() << "\n";
                 delete temp; // 자원을 회수 한다.
             }
         }
@@ -96,20 +105,79 @@ class SLL_int {
            sz++;
         }
 
-        void addElemBefore(){
-
+        void addElemAfter(int loc_val, int val){
+            int_node* target_node = head;
+            while(true){
+                if(target_node->getElem()==loc_val) break;
+                target_node = target_node->getNext();
+            }
+            if(target_node == nullptr)
+                throw std::logic_error("No such element in list! : "s + to_string(loc_val));
+            int_node* new_node = new int_node(val);
+            int_node* next_for_new = target_node->getNext();
+            target_node->setNext(new_node);
+            new_node->setNext(next_for_new);
+            sz++;
         }
 
-        void removeTargetElem(){
-
+        void removeFirstTargetElem(int val){
+            int_node* before_target = nullptr;
+            int_node* target_node = head;
+            while(true){
+                if(target_node->getElem()==val) break;
+                before_target = target_node;
+                target_node = target_node->getNext();
+            }
+            if(target_node == nullptr)
+                throw std::logic_error("No such element in list! : "s + to_string(val));
+            if(target_node == head) {
+                removeFirst(); // sz-- 이미 포함돼 있다.
+                return;
+            }
+            before_target -> setNext(target_node->getNext());
+            delete target_node;
+            sz--;
         }
 
         int removeFirst(){
-            return -1;
+            // java의 IllegalStateExction과 유사하다.
+            if(isEmpty()) throw std::logic_error("List is empty!");
+            int result = head->getElem();
+            if(sz==1){
+                delete head;
+                head = nullptr;
+                tail = nullptr;
+            } else {
+                int_node* target = head;
+                int_node* next_head = head->getNext();
+                delete head;
+                head = next_head;
+            }
+            sz--;
+            return result;
         }
 
         int removeLast(){
-            return -1;
+            if(isEmpty()) throw std::logic_error("List is empty!");
+            int result = tail->getElem();
+            if(sz==1){
+                delete tail;
+                head = nullptr;
+                tail = nullptr;
+            } else {
+                // tial 바로 직전 노드를 찾아야 한다.
+                int_node* new_tail = head;
+                while(true){
+                    if(new_tail -> getNext() -> getNext() == nullptr) break;
+                    new_tail = new_tail -> getNext();
+                }//wh
+                delete tail;
+                tail = new_tail;
+                // 새로운 tail을 설정해준 후, 그 tail의 다음 노드가 nullptr가 되게 해줘야 한다!!
+                tail -> setNext(nullptr);
+            }
+            sz--;// sz를 감소시키는 것도 까먹지 말자.
+            return result;
         }
 
         void printList(){
@@ -140,6 +208,10 @@ int main(){
     first.addFirst(5);
     // expect : 53124
     first.printList();
+    first.removeFirst();
+    first.removeLast();
+    // expect : 312
+    first.printList();
 
     SLL_int second{};
     second.printList();
@@ -149,8 +221,21 @@ int main(){
     second.addFirst(3);
     second.addLast(4);
     second.addFirst(5);
+    cout << second.size() << "\n";
     // expect : 53124 
     second.printList();
+    second.removeFirst();
+    cout << "Size after removeFirst() : " << second.size() << "\n";
+    second.removeLast();
+    // expect : 312
+    second.printList();
+    cout << second.size() << "\n";
+    second.removeFirst();
+    cout << second.size() << "\n";
+    second.printList();
+    second.removeLast();
+    second.removeLast();
+    // second 리스트는 비어 있다.
 
     SLL_int third{};
     third.printList();
@@ -158,6 +243,12 @@ int main(){
     //third.addLast();
     third.printList();
     // expect : 2
+    third.addElemAfter(2, 3);
+    third.printList();
+    third.removeFirstTargetElem(2);
+    third.removeFirstTargetElem(3);
+    //third.removeFirst(); throws logic_error.
+    third.printList();
 
     return 0;
 }

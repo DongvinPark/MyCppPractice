@@ -44,7 +44,7 @@ class SLL_int {
                                           // 여기에 뭔 짓을 하지 않은 채로 출력을 해야 비로소
                                           // temp가 원래 가리키던 객체(int_node)의 주소를 출력할
                                           // 수 있는 것.
-                cout << "release node !! : " << temp << " : val : " << temp->getElem() << "\n";
+                cout << "Destructor released node !! : " << temp << " : val : " << temp->getElem() << "\n";
                 delete temp; // 자원을 회수 한다.
             }
         }
@@ -52,12 +52,65 @@ class SLL_int {
         // int container Constructor? ex: vector, array, forward_list, list..
         
         // Copy Constructor
+        // 복사 및 이동 생성자, 복사 및 이동 연산자 오버로딩 할 때는 
+        // 정해진 인자 형식을 지켜야 한다. 그렇지 않으면 호출되지 않는다.
+        // 그리고 복사 작업을 시작하기 전에, 현재 객체를 '비어 있는' 상태로 먼저 만들어야 한다!!
+        SLL_int(const SLL_int& other) : head{nullptr}, tail{nullptr}, sz{0} {
+            cout << "Copy Constructor called! \n";          
+            if(other.sz==0) {
+               return;
+           } else {
+                int_node* cur = other.head;
+                while(true){
+                    if(cur != nullptr){
+                        int val = cur->getElem();
+                        addLast(val);
+                        cur = cur->getNext();
+                    } else break;
+                }
+           }
+        }
 
         // Copy Assignment Operator
+        SLL_int& operator=(const SLL_int& other){
+            if(this != &other && other.sz > 0){
+                sz = 0;
+                head = nullptr;
+                tail = nullptr;
+                int_node* cur = other.head;
+                while(true){
+                    if(cur != nullptr){
+                        int val = cur->getElem();
+                        addLast(val);
+                        cur = cur->getNext();
+                    } else break;
+                }
+            }
+            cout << "Copy Assignment operator called!\n";
+            return *this;
+        }
 
         // Move Constructor : 컴파일러의 RVO에 의해서 거의 호출되지 않으므로 생략.
 
         // Move Assignment Operator
+        SLL_int& operator=(SLL_int&& other) noexcept {
+            if(this != &other && other.sz > 0){
+                sz=0;
+                head=nullptr;
+                tail=nullptr;
+                int_node* cur = other.head;
+                while(true){
+                    if(cur != nullptr){
+                        int val = cur->getElem();
+                        addLast(val);
+                        cur = cur->getNext();
+                    } else break;
+                }
+                other.clear();
+            }
+            cout << "Move Assignment operator called!\n";
+            return *this;
+        }
         
         int size(){return sz;}
         
@@ -194,10 +247,36 @@ class SLL_int {
             }
             cout << "\n";
         }
+
+        void clear(){
+            if(isEmpty()){
+                cout << "List is empty! \n";
+            }
+            int_node* cur = head;
+            while(true){
+                if(cur != nullptr){
+                    int_node* next_target = cur->getNext();
+                    cout << "cleared node addr : " << cur << "\n";
+                    delete cur;
+                    cur = next_target;
+                } else break;
+            }
+            // head tail sz를 적절하게 초기화 하는 것을 까먹지 말자.
+            head = nullptr;
+            tail = nullptr;
+            sz = 0;
+        }
 };
 
-int main(){
+SLL_int createTempSLL_int(){
+    SLL_int temp{};
+    temp.addFirst(9);
+    temp.addLast(10);
+    return temp;
+}
 
+int main(){
+    
     SLL_int first{};
     first.printList();
 
@@ -245,10 +324,36 @@ int main(){
     // expect : 2
     third.addElemAfter(2, 3);
     third.printList();
-    third.removeFirstTargetElem(2);
-    third.removeFirstTargetElem(3);
-    //third.removeFirst(); throws logic_error.
+    //third.removeFirstTargetElem(2);
+    //third.removeFirstTargetElem(3);
+    //third.removeFirst();// throws logic_error.
     third.printList();
+
+    //third.clear(); // released two nodes.
+    
+    SLL_int fourth = third;
+    cout << "Print two lists after copy constructor call\n";
+    third.printList();
+    fourth.printList();
+
+    SLL_int fifth{};
+    fifth.addFirst(0);
+    fifth.addLast(1);
+    fifth.addLast(2);
+    
+    SLL_int sixth{};
+    sixth = fifth;
+    cout << "Print two lists after copy assignment operator call\n";
+    fifth.printList();
+    sixth.printList();
+    fifth.clear();
+    sixth.clear();
+
+    SLL_int seventh{};
+    seventh = createTempSLL_int();
+    cout << "Print list ater move assignment operator call\n";
+    seventh.printList();
+    seventh.clear();
 
     return 0;
 }

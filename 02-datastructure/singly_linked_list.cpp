@@ -52,9 +52,9 @@ class SLL_int {
         // int container Constructor? ex: vector, array, forward_list, list..
         
         // Copy Constructor
-        // 복사 및 이동 생성자, 복사 및 이동 연산자 오버로딩 할 때는 
-        // 정해진 인자 형식을 지켜야 한다. 그렇지 않으면 호출되지 않는다.
-        // 그리고 복사 작업을 시작하기 전에, 현재 객체를 '비어 있는' 상태로 먼저 만들어야 한다!!
+        // 복사 및 이동 생성자를 정의하거나, 복사 및 이동 연산자를 오버로딩 할 때는 
+        // 정해진 인자 형식을 지켜야 한다. 그렇지 않으면 정의 되지 않은 걸로 간주되어, 호출되지 않는다.
+        // 그리고 복사 작업을 시작하기 전에 현재 객체를 '비어 있는' 상태로 먼저 만들어야 한다!!
         SLL_int(const SLL_int& other) : head{nullptr}, tail{nullptr}, sz{0} {
             cout << "Copy Constructor called! \n";          
             if(other.sz==0) {
@@ -217,7 +217,7 @@ class SLL_int {
                 head = nullptr;
                 tail = nullptr;
             } else {
-                // tial 바로 직전 노드를 찾아야 한다.
+                // tail 바로 직전 노드를 찾아야 한다.
                 int_node* new_tail = head;
                 while(true){
                     if(new_tail -> getNext() -> getNext() == nullptr) break;

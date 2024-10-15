@@ -201,7 +201,6 @@ class SLL_int {
                 head = nullptr;
                 tail = nullptr;
             } else {
-                int_node* target = head;
                 int_node* next_head = head->getNext();
                 delete head;
                 head = next_head;

@@ -47,7 +47,7 @@ class SLL {
         int sz;
     public:
         // Default Constructor
-        SLL() : head{nullptr}, tail{nullptr}, sz{0} {}
+        explicit SLL() : head{nullptr}, tail{nullptr}, sz{0} {}
 
         // Destructor
         ~SLL(){

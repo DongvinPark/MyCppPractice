@@ -15,7 +15,7 @@ class my_arr
 
     public:
         // Constructor
-        my_arr(size_t n) : data(make_unique<T[]>(n)), size(n){
+        explicit my_arr(size_t n) : data(make_unique<T[]>(n)), size(n){
             cout << "Constructor called \n";
         }
         

@@ -34,7 +34,7 @@ class SLL {
         int sz;
     public:
         // Default Constructor
-        SLL() : head{nullptr}, tail{nullptr}, sz{0} {
+        explicit SLL() : head{nullptr}, tail{nullptr}, sz{0} {
             // static_assert를 사용해서 == 연산자와 << 연산자를 모두 오버로딩 한 클래스일 경우에만
             // SLL 클래스가 입력으로 받을 수 있게 해준다.
             static_assert(

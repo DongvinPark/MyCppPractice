@@ -11,7 +11,12 @@ class MyArray {
 
     public:
         // Constructor : 객체를 새로 만들어 낼 때 호출된다.
-        MyArray(size_t n) : size(n) {
+        // 인자를 하나 받아서 초기화 하는 생성자에는 explicit 키워드를 앞에 붙이자.
+        // 그래야, MyArray a = 7; 같은 암묵적 초기화가 차단 돼서 코드 가독성을 높이고,
+        // 오류 가능성 낮출 수 있다.
+        // explicit 키워드는 복사 및 이동 생성자에서는 쓰면 안 된다. 이러한 생성자들은 
+        // implicit(==암묵적)으로 호출 및 동작하기 때문이다.
+        explicit MyArray(size_t n) : size(n) {
             data = new int[size];
             cout << "Constructor: Allocation " << size << " elements\n";
         }

@@ -13,7 +13,7 @@ class MyArray {
 
     public:
         // Constructor
-        MyArray(size_t n) : size(n), data(make_unique<int[]>(n)) {
+        explicit MyArray(size_t n) : size(n), data(make_unique<int[]>(n)) {
             cout << "Constructor: Allocating " << size << " elements\n";
         }
 

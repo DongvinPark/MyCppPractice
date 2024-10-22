@@ -43,6 +43,16 @@ class DLL {
       return true;
   }
 
+  bool remove(Node<T>* target){
+      Node<T>* pre = target->getPrev();
+      Node<T>* nex = target->getNext();
+      pre->setNext(nex);
+      nex->setPrev(pre);
+      sz--;
+      delete target;
+      return true;
+  }
+
   public:
   // Constructor
   explicit DLL() : header{nullptr}, trailer{nullptr}, sz{0} {
@@ -86,9 +96,21 @@ class DLL {
       addBetween(e, trailer->getPrev(), trailer);
   }
 
-  void removeFirst() {}
+  void removeFirst() {
+      if(isEmpty()){
+        cout << "List is Empty!\n";
+        return;
+      }
+      remove(header->getNext());
+  }
 
-  void removeLast() {}
+  void removeLast() {
+      if(isEmpty()){
+        cout << "List is Empty!\n";
+        return;
+      }
+      remove(trailer->getPrev());
+  }
 
   void addElemBefore() {}
 
@@ -97,6 +119,10 @@ class DLL {
   }
 
   void printList() {
+      if(isEmpty()){
+        cout << "List is Empty!\n";
+        return;
+      }
       Node<T>* cur = header;
       while(true){
           cur = cur->getNext();
@@ -108,6 +134,10 @@ class DLL {
   }
 
   void printListReverse() {
+    if(isEmpty()){
+      cout << "List is Empty!\n";
+      return;
+    }
       Node<T>* cur = trailer;
       while(true){
           cur = cur->getPrev();
@@ -210,6 +240,12 @@ int main(){
         cout << *it << ", ";
     }
     cout << "\n";
+
+    first.removeLast();
+    first.removeFirst();
+    first.removeFirst();
+    first.printList();
+
 
     return 0;
 }// end of main

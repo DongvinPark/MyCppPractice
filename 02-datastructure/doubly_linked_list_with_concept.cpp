@@ -88,34 +88,79 @@ class DLL {
     return trailer->getPrev()->getElem();
   }
 
-  void addFirst(T e) {
-      addBetween(e, header, header->getNext());
+  bool addFirst(T e) {
+      return addBetween(e, header, header->getNext());
   }
 
-  void addLast(T e) {
-      addBetween(e, trailer->getPrev(), trailer);
+  bool addLast(T e) {
+      return addBetween(e, trailer->getPrev(), trailer);
   }
 
-  void removeFirst() {
+  bool removeFirst() {
       if(isEmpty()){
         cout << "List is Empty!\n";
-        return;
+        return false;
       }
-      remove(header->getNext());
+      return remove(header->getNext());
   }
 
-  void removeLast() {
+  bool removeLast() {
       if(isEmpty()){
         cout << "List is Empty!\n";
-        return;
+        return false;
       }
-      remove(trailer->getPrev());
+      return remove(trailer->getPrev());
   }
 
-  void addElemBefore() {}
+  bool addElemBefore(T val, T newVal) {
+      if(isEmpty()){
+          cout << "List is Empty!\n";
+          return false;
+      }
+      Node<T>* target = header->getNext();
+      while(true){
+          if(target == trailer){
+              cout << "Cannot find target!\n";
+              return false;
+          }
+          if(target->getElem() == val) break;
+          target = target->getNext();
+      }
+      if(target == header->getNext()){
+          return addFirst(newVal);
+      } else {
+          return addBetween(newVal, target->getPrev(), target);
+      }
+  }
 
-  bool removeTarget() {
-    return false;
+  bool removeTarget(T val) {
+      if(isEmpty()){
+          cout << "List is Empty!\n";
+          return false;
+      }
+      Node<T>* target = header->getNext();
+      while(true){
+          if(target == trailer){
+              cout << "Cannot find target!\n";
+              return false;
+          }
+          if(target->getElem() == val) break;
+          target = target->getNext();
+      }
+      return remove(target);
+  }
+
+  int clear(){
+      int cnt = 0;
+      Node<T>* target = header->getNext();
+      while(true){
+          if(isEmpty()) break;
+          Node<T>* nextTarget = target->getNext();
+          remove(target);
+          cnt++;
+          target = nextTarget;
+      }
+      return cnt;
   }
 
   void printList() {
@@ -216,6 +261,7 @@ class InvalidData {
   friend bool operator==(const InvalidData& before, const InvalidData& after){
     return before.key == after.key && before.val == after.val;
   }*/
+  void addLast() {}
 
 };
 
@@ -226,8 +272,8 @@ int main(){
     first.addLast(1);
     first.addFirst(2);
     first.addLast(3);
-    first.printList(); // expect : 2, 1, 3
-    first.printListReverse(); // expect : 3, 1, 2
+    first.printList(); // expect : 2, 1, 3,
+    first.printListReverse(); // expect : 3, 1, 2,
     
     cout << "printList by Iterator!!\n";
     for(auto& elem : first){
@@ -241,11 +287,19 @@ int main(){
     }
     cout << "\n";
 
+    first.addElemBefore(9, 0);
+    first.addElemBefore(2, 0);
+    first.addElemBefore(3, 7);
+    first.addElemBefore(1,9);
+    first.printList(); // expect : 0, 2, 9, 1, 7, 3,
+    first.removeTarget(90);
+    first.removeTarget(9);
+    first.printList(); // expect : 0, 2, 1, 7, 3,
+
     first.removeLast();
     first.removeFirst();
-    first.removeFirst();
-    first.printList();
-
+    first.printList(); // expect : 2, 1, 7,
+    cout << "Clear DLL! number of released node : " << first.clear() << "\n";
 
     return 0;
 }// end of main

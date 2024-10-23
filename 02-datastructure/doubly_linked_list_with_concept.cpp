@@ -3,7 +3,7 @@
 using namespace std;
 
 template<typename T>
-concept PrinnableAndComparable = requires(T a, T b, std::ostream& os)
+concept PrintableAndComparable = requires(T a, T b, std::ostream& os)
 {
   {os << a} -> std::same_as<std::ostream&>;
   {a==b} -> std::same_as<bool>;
@@ -28,7 +28,7 @@ class Node {
   void setPrev(Node* p) {prev = p;}
 };
 
-template<PrinnableAndComparable T>
+template<PrintableAndComparable T>
 class DLL {
   private:
   Node<T>* header;
@@ -378,9 +378,15 @@ int main(){
     myList.addLast({2,"two"});
     myList.printList();
 
+    /*
+    // InvalidData 클래스는 << 연산자와 == 연산자를 오버로딩 하지 않았으므로, PrintableAndComparable이라는
+    // 콘셉트에 부합하지 않는다. 이 부분의 주석을 해제하고,
+    // g++ -std=c++20 -o executable doubly_linked_list_with_concept.cpp && ./executable && rm executable
+    // 라는 명령어로 실행해보면 관련 경고가 뜬다.
     DLL<InvalidData> failedList{};
     failedList.addLast({9,"nine"});
     failedList.printList();
+    */
 
     return 0;
 }// end of main

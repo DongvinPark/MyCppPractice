@@ -1,14 +1,14 @@
 #include <iostream>
 
 using namespace std;
-/*
+
 template<typename T>
 concept PrinnableAndComparable = requires(T a, T b, std::ostream& os)
 {
   {os << a} -> std::same_as<std::ostream&>;
   {a==b} -> std::same_as<bool>;
 };
-*/
+
 template<typename T>
 class Node {
   private:
@@ -28,7 +28,7 @@ class Node {
   void setPrev(Node* p) {prev = p;}
 };
 
-template</*PrinnableAndComparable*/typename T>
+template<PrinnableAndComparable T>
 class DLL {
   private:
   Node<T>* header;
@@ -62,15 +62,64 @@ class DLL {
       header->setNext(trailer);
   }
 
-  // Destructor
+  // Destructor : header와 trailer도 반납해야 한다.
+  ~DLL(){
+      cout << "Destructor released node : ";
+      Node<T>* cur = header;
+      while(true){
+          Node<T>* nextTarget = cur->getNext();
+          cout << cur << ", ";
+          delete cur;
+          cur = nextTarget;
+          if(cur == nullptr) break;
+      }
+      cout << "\n";
+  }
 
-  // Copy Constructor
+  // Copy Constructor : 이미 정의한 반복자를 이용해서 복사 생성자를 정의해보았다.
+  DLL(const DLL& other) : header{nullptr}, trailer{nullptr}, sz{0} {
+      header = new Node<T>();
+      trailer = new Node<T>();
+      trailer->setPrev(header);
+      header->setNext(trailer);
+      // 반복자를 사용해서 초기화 할 때는 반복자의 모체 클래스와 반복자를 헷갈리지 말자.
+      for(auto it = other.begin(); it != other.end(); ++it){
+          addLast(*it);
+      }
+      cout << "Copy Constructor called!\n";
+  }
 
   // Copy Assignment operator
+  DLL& operator=(const DLL& other) noexcept {
+      if(this != &other){
+          header = new Node<T>();
+          trailer = new Node<T>();
+          trailer->setPrev(header);
+          header->setNext(trailer);
+          for(auto it = other.begin(); it != other.end(); ++it){
+              addLast(*it);
+          }
+          cout << "Copy Assignment operator called!\n";
+      }
+      return *this;
+  }
 
   // Move Constructor : 컴파일러의 RVO 동작에 의해서 거의 실행되지 않으므로 생략
 
-  // Move Assignment operator
+  // Move Assignment operator : 컴파일러의 RVO 동작에 의해서 거의 실행되지 않음.
+  DLL& operator=(DLL&& other) noexcept {
+      if(this != &other){
+          clear();
+          for(auto it = other.begin(); it != other.end(); ++it){
+              addLast(*it);
+          }
+          other.clear();
+          delete other.header;
+          delete other.trailer;    
+      }
+      cout << "Move Assignment operator called!\n";
+      return *this;
+  }
 
   size_t size() {
     return sz;
@@ -222,12 +271,13 @@ class DLL {
 
   };
 
-  Iterator begin() {return Iterator(header->getNext());}
-  Iterator end() {return Iterator(trailer);}
+  // 복사 생성자에서 이 반복자를 활용하기 위해서는 const 리턴 처리를 꼭 해줘야 한다!!
+  Iterator begin() const {return Iterator(header->getNext());}
+  Iterator end() const {return Iterator(trailer);}
 
   // 역방향 순회를 위한 함수 정의
-  Iterator rbegin() {return Iterator(trailer->getPrev());}
-  Iterator rend() {return Iterator(header);}
+  Iterator rbegin() const {return Iterator(trailer->getPrev());}
+  Iterator rend() const {return Iterator(header);}
 
 
 };// end of DLL
@@ -253,21 +303,33 @@ class InvalidData {
   int key;
   std::string val;
 
-  /*friend std::ostream& operator<<(std::ostream& os, const InvalidData& obj){
+  /*
+  friend std::ostream& operator<<(std::ostream& os, const InvalidData& obj){
     os << "Key: " << obj.key << ", Value: " << obj.val;
     return os;
   }
 
   friend bool operator==(const InvalidData& before, const InvalidData& after){
     return before.key == after.key && before.val == after.val;
-  }*/
-  void addLast() {}
-
+  }
+  */
 };
+
+DLL<std::string> helper(){
+    DLL<std::string> innerList{};
+    innerList.addLast("Dongvin");
+    innerList.addLast("Park");
+    return innerList;
+}
 
 int main(){
     
     DLL<int> first{};
+    cout << "print empty list with range for \n";
+    for(auto& elem : first){
+        cout << elem << ", ";
+    }
+    cout << "elem size : " << first.size() << "\n";
 
     first.addLast(1);
     first.addFirst(2);
@@ -292,6 +354,13 @@ int main(){
     first.addElemBefore(3, 7);
     first.addElemBefore(1,9);
     first.printList(); // expect : 0, 2, 9, 1, 7, 3,
+
+    DLL<int> second{};
+    second = first;
+    cout << "print both first and second list\n";
+    first.printList();
+    second.printList();
+
     first.removeTarget(90);
     first.removeTarget(9);
     first.printList(); // expect : 0, 2, 1, 7, 3,
@@ -300,6 +369,18 @@ int main(){
     first.removeFirst();
     first.printList(); // expect : 2, 1, 7,
     cout << "Clear DLL! number of released node : " << first.clear() << "\n";
+
+    DLL<std::string> name = helper();
+    name.printList();
+
+    DLL<MyData> myList{};
+    myList.addLast({1,"one"});
+    myList.addLast({2,"two"});
+    myList.printList();
+
+    DLL<InvalidData> failedList{};
+    failedList.addLast({9,"nine"});
+    failedList.printList();
 
     return 0;
 }// end of main

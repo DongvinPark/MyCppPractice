@@ -382,7 +382,7 @@ int main(){
     // InvalidData 클래스는 << 연산자와 == 연산자를 오버로딩 하지 않았으므로, PrintableAndComparable이라는
     // 콘셉트에 부합하지 않는다. 이 부분의 주석을 해제하고,
     // g++ -std=c++20 -o executable doubly_linked_list_with_concept.cpp && ./executable && rm executable
-    // 라는 명령어로 실행해보면 관련 경고가 뜬다.
+    // 라는 명령어로 실행해보면 관련 경고가 뜨면서 컴파일타임 에러가 발생한다.
     DLL<InvalidData> failedList{};
     failedList.addLast({9,"nine"});
     failedList.printList();

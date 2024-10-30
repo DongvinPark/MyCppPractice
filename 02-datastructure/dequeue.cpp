@@ -22,12 +22,73 @@ public:
 	~FixedDeque() {delete[] data;}
 
 	// Copy Constructor
+	FixedDeque(const FixedDeque& other) :
+		data{ new T[other.capa] },
+		first{ other.first },
+		last{ other.last },
+		size{ other.size },
+		capa{ other.capa } {
+		for (int i = 0; i < capa; ++i) {
+			data[i] = other.data[i];
+		}
+	}
 
-	// Copy Assignment operator
+	// Copy Assignment Operator
+	FixedDeque& operator=(const FixedDeque& other) {
+		if (this == &other) return *this;  // 자기자신에게 할당하는 것을 방지한다.
+
+		// 원래 내꺼 데이터를 없앤다.
+		delete[] data;
+
+		// 내꺼를 싹 다 other 꺼로 초기화 한다.
+		data = new T[other.capa];
+		first = other.first;
+		last = other.last;
+		size = other.size;
+		capa = other.capa;
+		for (int i = 0; i < capa; ++i) {
+			data[i] = other.data[i];
+		}
+
+		// 그러고나서, 나 자신에 대한 포인터를 반환한다.
+		return *this;
+	}
 
 	// Move Constructor
+	FixedDeque(FixedDeque&& other) noexcept :
+		// 내꺼 데이터 포인터가 other 꺼 데이터를 가리키게 만든다.
+		data{ other.data },
+		first{ other.first },
+		last{ other.last },
+		size{ other.size },
+		capa{ other.capa } {
+		// other 꺼 데이터 포인터는 nullptr를 가리키게 만들고,
+		// other의 다른 필드들도 전부 '비어 있는' 상태로 만든다.
+		other.data = nullptr;
+		other.size = 0;
+		other.capa = 0;
+	}
 
-	// Move Assignment operator
+	// Move Assignment Operator
+	FixedDeque& operator=(FixedDeque&& other) noexcept {
+		if (this == &other) return *this;  // 자기 자신에 대한 할당 방지
+
+		delete[] data;  // 내꺼를 먼저 싹 지워 놓는다.
+
+		// 내꺼를 other 꺼로 초기화 한다.
+		data = other.data;
+		first = other.first;
+		last = other.last;
+		size = other.size;
+		capa = other.capa;
+
+		// other 꺼를 '비어 있는' 상태로 만든다.
+		other.data = nullptr;
+		other.size = 0;
+		other.capa = 0;
+
+		return *this;
+	}
 
 	int getSize() { return size; }
 	bool isEmpty() { return size == 0; }

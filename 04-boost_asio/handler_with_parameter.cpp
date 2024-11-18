@@ -66,6 +66,12 @@ int main() {
     //t.async_wait(std::bind(myCompletionHandler, boost::asio::placeholders::error, &t, &count));
 
     // 이 코드는 윈도우, 리눅스, 맥, WSL 환경에서 모두 작동한다.
+    // 위의 std::bind 코드의 경우, boosd.asio의 버전이 달라지거나 컴파일러 구현체가 달라질 경우
+    // 예상치 못한 에러를 뿜어낼 수 있다.
+    // 그러나, lambda를 사용할 경우 캡쳐 리스트를 사용해서 람다 내부에서 사용해야 하는 참조들을 전달함과 동시에,
+    // (const boost::system::error_code& error)라는 boost.asio 용 completion handler 함수 시그니처를 정확하게
+    // 맞춰줄 수 있고, lambda는 C++11 부터 지원하기 때문에 backward compatibility가 뛰어나다.
+    // 따라서, 웬만하면 lambda를 이용해서 boost.asio 의 completion handler를 구현하도록 하자.
     t.async_wait([&t, &count](const boost::system::error_code& error) {
         myCompletionHandler(error, &t, &count);
     });

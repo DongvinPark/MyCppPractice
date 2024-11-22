@@ -1,33 +1,31 @@
-#include <iostream>
+i#include <iostream>
 #include <string>
 #include <chrono>
-#include <ctime>
 #include <iomanip>
-#include <sstream>
 #include <boost/asio.hpp>
 
 using boost::asio::ip::tcp;
 
 std::string make_daytime_string() {
-	auto now = std::chrono::system_clock::now();
-	std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_c = std::chrono::system_clock::to_time_t(now);
 
-	std::tm time_info;
+    std::tm time_info;
 
-	// 운영체제에 맞는 함수를 사용하게 만든다.
+    // 운영체제에 맞는 함수를 사용하게 만든다.
 #ifdef _WIN32
-	localtime_s(&time_info, &now_c); // Windows-safe version
+    localtime_s(&time_info, &now_c); // Windows-safe version
 #else
-	time_info = *std::localtime(&now_c); // Linux and POSIX systems
+    time_info = *std::localtime(&now_c); // Linux and POSIX systems
 #endif
 
-	std::ostringstream oss;
-	oss << std::put_time(&time_info, "%Y-%m-%d %H:%M:%S");
+    std::ostringstream oss;
+    oss << std::put_time(&time_info, "%Y-%m-%d %H:%M:%S");
 
-	return oss.str();
+    return oss.str();
 }
 
-// tcp_connection 객체가 
+// tcp_connection 객체가
 // public std::enable_shared_from_this<tcp_connection> 객체를 상속하게 만듦으로써,
 // tcp_connection 객체가 자기 자신을 가리키는 shared_ptr를 안전하게 만들 수 있게 해준다.
 // 이렇게 만들어진 'tcp_connection 자신에 대한 shared_ptr'는 boost.asio의 io_context에게
@@ -36,86 +34,114 @@ std::string make_daytime_string() {
 // tcp_connection 객체를 참조할 수 있게 된다.
 class tcp_connection : public std::enable_shared_from_this<tcp_connection>{
 public:
-	// tcp_connection 객체는 현재의 async 서버 코드 뿐만 아니라, boost.asio 라이브러리 코드에서도
-	// 사용하기 때문에 두 주체가 소유권을 공유할 수 있게 해줌과 동시에 수명도 자동으로 관리할 수 있게 해주는
-	// shated_ptr를 사용하기에 적합하다.
-	typedef std::shared_ptr<tcp_connection> pointer;
+    // tcp_connection 객체는 현재의 async 서버 코드 뿐만 아니라, boost.asio 라이브러리 코드에서도
+    // 사용하기 때문에 두 주체가 소유권을 공유할 수 있게 해줌과 동시에 수명도 자동으로 관리할 수 있게 해주는
+    // shated_ptr를 사용하기에 적합하다.
+    typedef std::shared_ptr<tcp_connection> pointer;
 
-	static pointer create(boost::asio::io_context& io_context) {
-		return pointer(new tcp_connection(io_context));
-	}
+    static pointer create(boost::asio::io_context& io_context) {
+        return pointer(new tcp_connection(io_context));
+    }
 
-	tcp::socket& socket() {
-		return socket_;
-	}
+    tcp::socket& socket() {
+        return socket_;
+    }
 
-	void start() {
-		message_ = make_daytime_string();
+    void start() {
+        message_ = make_daytime_string();
 
-		auto self = shared_from_this();
-		boost::asio::async_write(
-			socket_,
-			boost::asio::buffer(message_),
+        auto self = shared_from_this();
+        boost::asio::async_write(
+            socket_,
+            boost::asio::buffer(message_),
 
-			[self](const boost::system::error_code& error, size_t bytes_transferred) {
-				self->handle_write(error, bytes_transferred);
-			}
-		);
-		std::cout << "Wrote response in aysnc manner.\n";
-	}
+            [self](const boost::system::error_code& error, size_t bytes_transferred) {
+                self->handle_write(error, bytes_transferred);
+            }
+        );
+    }
 
 private:
-	tcp_connection(boost::asio::io_context& io_context) : socket_(io_context) {}
+    // tcp_connection 클래스의 생성자를 private에 둠으로써, 정해진 방법(public create() 호출)
+    // 이외의 방법으로 tcp_connection 객체를 직접 생성하는 것을 막는다.
+    tcp_connection(boost::asio::io_context& io_context) : socket_(io_context) {}
 
-	void handle_write(const boost::system::error_code& /*error*/, size_t /*byte_transferred*/) {}
+    void handle_write(const boost::system::error_code& error, size_t bytes_transferred) {
+        if (error) {
+            std::cerr << "Write failed: " << error.message() << "\n";
+        } else {
+            std::cout << "Successfully wrote " << bytes_transferred << " bytes in async manner.\n";
+        }
+    }
 
-	tcp::socket socket_;
-	std::string message_;
+    tcp::socket socket_;
+    std::string message_;
 };
 
 class tcp_server {
 public:
-	tcp_server(boost::asio::io_context& io_context) : 
-		io_context_(io_context), acceptor_(io_context, tcp::endpoint(tcp::v4(), 8554)) {
-		std::cout << "Tcp Async Server started on port 8554...\n";
-		start_accept();
-	}
+    tcp_server(boost::asio::io_context& io_context) :
+        io_context_(io_context), acceptor_(io_context, tcp::endpoint(tcp::v4(), 8554)) {
+        std::cout << "Tcp Async Server started on port 8554...\n";
+        start_accept();
+    }
 
 private:
-	void start_accept() {
-		auto new_connection = tcp_connection::create(io_context_);
+    void start_accept() {
+        auto new_connection = tcp_connection::create(io_context_);
 
-		// 현재 서버 로직을 blocking하지 않으면서 동시에 서버가 다음 요청을 기다릴 수 있게 해준다.
-		// 자세히 보면, handle_accept()가 start_accept()를 호출하고,
-		// start_accept()가 async 하게 handle_accept()를 호출하여 재귀적 호출 구조로 
-		// async 서버가 마치 while(true){...}가 작동하는 것처럼 요청 수신 루프를 반복하게 해준다.
-		std::cout << "Waiting for new requests...\n";
-		acceptor_.async_accept(
-			new_connection->socket(),
-			[this, new_connection](const boost::system::error_code& error) {
-				handle_accept(new_connection, error);
-			}
-		);
-	}
+        // 현재 서버 로직을 blocking하지 않으면서 동시에 서버가 다음 요청을 기다릴 수 있게 해준다.
+        // 자세히 보면, handle_accept()가 start_accept()를 호출하고,
+        // start_accept()가 async 하게 handle_accept()를 호출하여 재귀적 호출 구조로
+        // async 서버가 마치 while(true){...}가 작동하는 것처럼 요청 수신 루프를 반복하게 해준다.
+        std::cout << "Waiting for new requests...\n";
+        acceptor_.async_accept(
+            new_connection->socket(),
+            [this, new_connection](const boost::system::error_code& error) {
+                handle_accept(new_connection, error);
+            }
+        );
+    }
 
-	void handle_accept(tcp_connection::pointer new_connection, const boost::system::error_code& error) {
-		if (!error) {
-			new_connection->start();
-		}
-		start_accept();
-	}
+    void handle_accept(tcp_connection::pointer new_connection, const boost::system::error_code& error) {
+        if (!error) {
+            new_connection->start();
+        }
+        start_accept();
+    }
 
-	boost::asio::io_context& io_context_;
-	tcp::acceptor acceptor_;
+    boost::asio::io_context& io_context_;
+    tcp::acceptor acceptor_;
 };
 
+/*
+ 이 서버를 실행시키고 요청을 줘보면 아래와 같은 메시지가 출력된다.
+ 즉, sync blocking 서버라면, 응답을 write 한 후에, 다음 요청을 기다리는 순서로 메시지가 출력됐을텐데 정 반대다.
+ 
+ 새 요청을 이미 기다리고 있는데, boost.asio 의 io_context에서는 이전 요청에 대한 응답을 write 완료 후
+ 완료 로그를 출력하고 있는 것이다. async - non blocking 이라서 가능한 일이다.
+ 
+ Tcp Async Server started on port 8554...
+ Waiting for new requests...
+ Waiting for new requests...
+ Successfully wrote 19 bytes in async manner.
+ Waiting for new requests...
+ Successfully wrote 19 bytes in async manner.
+ Waiting for new requests...
+ Successfully wrote 19 bytes in async manner.
+ Waiting for new requests...
+ Successfully wrote 19 bytes in async manner.
+ Waiting for new requests...
+ Successfully wrote 19 bytes in async manner.
+*/
 int main() {
-	try {
-		boost::asio::io_context io_context;
-		tcp_server server(io_context);
-		io_context.run();
-	} catch (std::exception& e) {
-		std::cerr << e.what() << "\n";
-	}
-	return 0;
+    try {
+        boost::asio::io_context io_context;
+        tcp_server server(io_context);
+        io_context.run();
+    } catch (std::exception& e) {
+        std::cerr << e.what() << "\n";
+    }
+    return 0;
 }
+

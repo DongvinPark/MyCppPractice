@@ -54,11 +54,6 @@ private:
             socket_.async_send_to(
                 boost::asio::buffer(*message),
                 remote_endpoint_,
-                /*std::bind(
-                    &udp_server::handle_send, this, message,
-                    boost::asio::placeholders::error,
-                    boost::asio::placeholders::bytes_transferred
-                )*/
                 [this, message](const boost::system::error_code& error, std::size_t bytes_transferred) {
                     handle_send(message, error, bytes_transferred);
                 }

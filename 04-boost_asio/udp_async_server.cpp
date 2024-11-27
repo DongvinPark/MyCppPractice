@@ -33,6 +33,7 @@ class udp_server {
 public:
     udp_server(boost::asio::io_context& io_context) :
         socket_(io_context, udp::endpoint(udp::v4(), 8554)) {
+        std::cout << "Async UDP Daytime Server is running of port 8554 ...\n";
         start_receive();
     }
 
@@ -59,18 +60,29 @@ private:
                 }
             );
 
+            // 여기에서 다시 start_receive()를 호출하기 때문에 결과적으로 재귀에 의한 루프가 형성된다.
             start_receive();
         }
     }
 
     void handle_send(
         std::shared_ptr<std::string> /*message*/,
-        const boost::system::error_code& /*error*/,
-        std::size_t /*bytes_transferred*/
+        const boost::system::error_code& error,
+        std::size_t bytes_transferred
     ) {
+        if (error) {
+            std::cerr << "Write failed: " << error.message() << "\n";
+        } else {
+            std::cout << "Successfully wrote " << bytes_transferred << " bytes in async manner.\n";
+        }
     }
 
+    /*
+     똑같은 소켓을 가지고 요청을 하는 모든 클라이언트에게 응답을 전송하는 것에 사용한다.
+     그렇기 때문에, 각 요청마다 새로운 소캣을 만들어줘야 하는 TCP 서버보다 구현이 간단해진다.
+    */
     udp::socket socket_;
+    // remote_endpoint 또한 계속 재사용된다.
     udp::endpoint remote_endpoint_;
     std::array<char, 1> recv_buffer_;
 };
@@ -87,3 +99,4 @@ int main() {
 
     return 0;
 }
+

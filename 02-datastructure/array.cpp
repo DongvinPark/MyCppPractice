@@ -1,136 +1,175 @@
-#include<iostream>
-#include<stdexcept>
-#include<utility>
 
-using namespace std;
+#include <algorithm>
+#include <cstddef>
+#include <iostream>
+#include <stdexcept>
+#include <utility>
 
 class MyArray {
-    private:
-        int* data;
-        size_t size;
+private:
+    int* data;
+    std::size_t size;
 
-    public:
-        // Constructor : 객체를 새로 만들어 낼 때 호출된다.
-        // 인자를 하나 받아서 초기화 하는 생성자에는 explicit 키워드를 앞에 붙이자.
-        // 그래야, MyArray a = 7; 같은 암묵적 초기화가 차단 돼서 코드 가독성을 높이고,
-        // 오류 가능성 낮출 수 있다.
-        // explicit 키워드는 복사 및 이동 생성자에서는 쓰면 안 된다. 이러한 생성자들은 
-        // implicit(==암묵적)으로 호출 및 동작하기 때문이다.
-        explicit MyArray(size_t n) : size(n) {
-            data = new int[size];
-            cout << "Constructor: Allocation " << size << " elements\n";
+public:
+    // Constructor
+    // 객체가 생성될 때 호출된다.
+    //
+    // explicit:
+    // 단일 인자를 받는 생성자를 통한 암묵적 변환을 방지한다.
+    // 예: MyArray arr = 7; 같은 초기화를 막는다.
+    explicit MyArray(std::size_t n)
+        : data(new int[n]), size(n) {
+        std::cout << "Constructor: Allocation "
+                  << size << " elements\n";
+    }
+
+    // Destructor
+    // 객체의 수명이 끝날 때 호출된다.
+    // new[]로 할당한 메모리를 delete[]로 해제한다.
+    ~MyArray() {
+        delete[] data;
+        std::cout << "Destructor: Releasing memory\n";
+    }
+
+    // Copy Constructor
+    // 새로운 객체를 기존 객체로 초기화할 때 호출된다.
+    //
+    // 깊은 복사(deep copy):
+    // 원본 배열의 원소를 새로운 메모리에 복사한다.
+    // 두 객체가 서로 다른 배열을 소유하므로,
+    // 한 객체의 소멸이 다른 객체의 메모리에 영향을 주지 않는다.
+    MyArray(const MyArray& other)
+        : data(new int[other.size]), size(other.size) {
+        std::copy(other.data,
+                  other.data + size,
+                  data);
+
+        std::cout << "Copy Constructor: Copying "
+                  << size << " elements\n";
+    }
+
+    // Copy Assignment Operator
+    // 이미 존재하는 객체에 다른 객체의 값을 대입할 때 호출된다.
+    //
+    // copy-and-swap:
+    // 1. 복사 생성자로 임시 복사본을 만든다.
+    // 2. swap을 통해 현재 객체와 자원을 교환한다.
+    // 3. 함수가 끝나면 임시 객체가 기존 자원을 해제한다.
+    //
+    // 복사 과정에서 예외가 발생해도 현재 객체는 유지된다.
+    MyArray& operator=(const MyArray& other) {
+        if (this != &other) {
+            MyArray temp(other);
+            swap(temp);
         }
 
-        // Destructor : 객체가 소멸될 때 호출된다. 자원해제에 필수적이다.
-        ~MyArray() {
+        std::cout << "Copy Assignment: Copying "
+                  << size << " elements\n";
+
+        return *this;
+    }
+
+    // Move Constructor
+    // 새로운 객체를 rvalue 객체로 초기화할 때 호출된다.
+    //
+    // 배열 원소를 하나씩 복사하지 않고,
+    // 기존 객체가 소유하던 메모리 포인터를 가져온다.
+    // 원본 객체는 자원을 잃은 유효한 상태가 된다.
+    MyArray(MyArray&& other) noexcept
+        : data(other.data), size(other.size) {
+        other.data = nullptr;
+        other.size = 0;
+
+        std::cout << "Move Constructor: Moving "
+                  << size << " elements\n";
+    }
+
+    // Move Assignment Operator
+    // 이미 존재하는 객체에 rvalue 객체를 대입할 때 호출된다.
+    MyArray& operator=(MyArray&& other) noexcept {
+        if (this != &other) {
             delete[] data;
-            cout << "Destructor: Releasing memory\n";
-        }
 
-        // Copy Constructor : 새로운 객체를 선언함과 동시에 이전에 만들어둔 객체로 초기화 할 때 호출된다.
-        // MyArray arr2 = other_arr_made_before; 이런 코드다.
-        MyArray(const MyArray& other) : size(other.size) {
-           data = new int[size];
-           // std lib의 배열이 아니라, new 연산으노 만든 Raw 배열을 직접 사용하고 있기 때문에,
-           // other.data 가 배열의 첫 요소의 포인터임을 활용해서 거기에 size를 더해서 복사 원본
-           // 배열의 마지막 요소의 바로 다음 요소를 가리키는 포인터를 넘긴다.
-           // 즉, raw 배열을 다룰 때는 하는 수 없이 포인터 연산을 해야 한다...
-           std::copy(other.data, other.data + size, data);
-           cout << "Copy Constructor: Copying " << size << " elements\n";
-        }
+            data = other.data;
+            size = other.size;
 
-        // Copy Assignment Operatori : 이미 만들어져 있는 객체를 또 다른 이미 만들어져 있는 객체로 초기화
-        // 할 때 호출된다.
-        // MyArray arr3(10); arr3 = other_arr_made_before; 이런 코드다.
-        MyArray& operator=(const MyArray& other){
-            if(this != &other){
-                delete[] data;
-
-                size = other.size;
-                data = new int[size];
-                std::copy(other.data, other.data + size, data);
-                cout << "Copy Assignment: Copying " << size << " elements\n";
-            }
-            // 참조 == 포인터 접근이 완료된 상태 임을 기억하라.
-            // 예를 들어서, &elem[idx]에는별도로 * 접근 할 필요 없이 바로 elem[idx] = 8;이 된다.
-            // 그래서 그냥 this가 아니라, *this 가 리턴돼야 한다.
-            return *this;
-        }
-
-        // Move Constructor
-        MyArray(MyArray&& other) noexcept : data(other.data), size(other.size) {
             other.data = nullptr;
             other.size = 0;
-            cout << "Move Constructor: Moving " << size << " elements\n";
         }
 
-        // Move Assignment Operator
-        MyArray& operator=(MyArray&& other) noexcept {
-            if(this != &other){
-                delete[] data;
+        std::cout << "Move Assignment: Moving "
+                  << size << " elements\n";
 
-                data = other.data;
-                size = other.size;
+        return *this;
+    }
 
-                other.data = nullptr;
-                other.size = 0;
-
-                cout << "Move Assignment: Moving " << size << " elements\n";
-            }
-            return *this;
+    // Element Access
+    // 수정 가능한 객체에서 원소에 접근한다.
+    //
+    // size_t를 사용하므로 음수 인덱스 검사는 필요하지 않다.
+    // idx >= size이면 범위를 벗어난 접근이다.
+    int& operator[](std::size_t idx) {
+        if (idx >= size) {
+            throw std::out_of_range(
+                "Array index out of range!"
+            );
         }
 
-        // Element Access Function
-        int& operator[](int idx){
-            if(idx < 0 || idx >= size){
-                throw std::out_of_range("Array index out of range!");
-            }
-            return data[idx];
-        }
-};// end of MyArray. C++ 에서는 클래스 정의가 끝나는 중괄호에 ; 를 꼭 붙여야 한다!!
+        return data[idx];
+    }
 
-MyArray createTemporaryArray(size_t n){
-    // 원래대로라면, 지역변수는 자기 범위를 벗어나면 소멸한다.
-    // 그러나 함수의 결과값이 소멸돼서는 안 되므로, 이동 생성자 또는 이동 연잔자를 통해서
-    // 지역 변수가 새로운 범위로 '이동'할 수 있게 해줘야 한다. 이때 쓸데 없는 복사가 일어나지 않게
-    // 해주는 것이 중요하다.
+    // Const Element Access
+    // const 객체에서도 원소를 읽을 수 있도록 한다.
+    const int& operator[](std::size_t idx) const {
+        if (idx >= size) {
+            throw std::out_of_range(
+                "Array index out of range!"
+            );
+        }
+
+        return data[idx];
+    }
+
+private:
+    // 두 객체의 내부 자원을 교환한다.
+    void swap(MyArray& other) noexcept {
+        std::swap(data, other.data);
+        std::swap(size, other.size);
+    }
+};
+
+// 반환값은 값으로 반환된다.
+// 지역 객체의 수명이 연장되는 것이 아니라,
+// 반환 객체가 복사 생략 또는 이동을 통해 만들어진다.
+MyArray createTemporaryArray(std::size_t n) {
     MyArray tempArray(n);
     return tempArray;
 }
 
 int main() {
-
-    // 생성하는 것들(생성자, 복사생성자, 이동생성자)들은 할당(==객체생성)과 초기화가 ';'로 끝나는
-    // 하나의 문장에서 전부 이루어지는 반면,
-    // 이동시키는 것들(복사 연산자, 이동 연산자)은 할당과 초기화가 별개의 ';'로 분리돼 있거나, 
-    // arr_made_before = MyArray(5); 와 같이(이 예시는 Move Assignment Operator다)
-    // 또한, 이동 생성자와 이동 연산자는 원래대로라면 지역 범위를 벗어나서 소멸해야 할 지역 변수를
-    // MyArray arr = createTemporaryArray(10); 과 같이 지역 범위를 벗어날 수 있게 해주는 역할을 한다.
-    // 그리고 이동 생성자, 이동 연산자 류는 인자가 L-vlaue가 아니라, R-value 참조이므로 && 를 써야 한다.
-    //
-    // 이동 생성자는 컴파일러의 최적화 설정(eliding, RVO 등)에 의해서 대부분 호출이 생략된다.
-    // *** 생성자와 연산자를 구분하는 가장 쉽고 명확한 방법은, MyArray arr = //...;
-    // 같이 sentence의 첫 부분에서 타입이 명시되는지를 보는 것이다. 타입이 명시 되면 생성자 종류다.
-
     MyArray arr1(5); // Constructor
-    arr1[0] = 10; // Access element
+    arr1[0] = 10;
     arr1[1] = 20;
 
-    MyArray arr2 = arr1; // Copy constructor
+    MyArray arr2 = arr1; // Copy Constructor
 
     MyArray arr3(10); // Constructor
-    arr3 = arr1; // Copy Assignment operator
-    
-    cout << "\n worked well. let's see move sementics \n\n";
+    arr3 = arr1;      // Copy Assignment Operator
 
-    // 원래대로라면, 여기에서 move constructor가 호출돼야 하지만, 컴파일러의 최적화 기법인,
-    // copy elision, RVO(==return value optimization) 등이 작동해서 호출되지 않는다.
-    MyArray arr4 = createTemporaryArray(7); // Move Constructor (from temporary)
+    std::cout << "\nWorked well. "
+                 "Let's see move semantics.\n\n";
+
+    // 반환값 초기화.
+    // copy elision이 적용되면 이동 생성자 호출이 생략될 수 있다.
+    MyArray arr4 = createTemporaryArray(7);
 
     MyArray arr5(3); // Constructor
-    arr5 = createTemporaryArray(7); // Move Assignment opeartor
-   
-    cout << "\n Destructors will be called !! \n\n";
-    // All Destructors will be called automatically at the end
+
+    // 이미 존재하는 arr5에 임시 객체를 대입한다.
+    // Move Assignment Operator가 호출될 수 있다.
+    arr5 = createTemporaryArray(7);
+
+    std::cout << "\nDestructors will be called!\n\n";
+
     return 0;
 }

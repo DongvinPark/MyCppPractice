@@ -5,3 +5,9 @@
 *.xml
 
 *.iml
+
+*.DS_STORE
+
+# window realted files
+*.exe
+*.obj

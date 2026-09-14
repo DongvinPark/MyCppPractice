@@ -139,6 +139,10 @@ private:
 // 지역 객체의 수명이 연장되는 것이 아니라,
 // 반환 객체가 복사 생략 또는 이동을 통해 만들어진다.
 MyArray createTemporaryArray(std::size_t n) {
+    // NRVO (Named Return Value Optimization)는 C++에서 함수가
+    // 이름이 있는 지역 객체(Named Local Variable)를 반환할 때,
+    // 불필요한 복사나 이동 생성자 호출을 없애고 호출자의 메모리 공간에 직접
+    // 객체를 생성하는 컴파일러 최적화 기법이다.
     MyArray tempArray(n);
     return tempArray;
 }

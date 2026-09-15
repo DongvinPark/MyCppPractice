@@ -16,7 +16,8 @@ class Stack {
             // 스택 사이즈 결정 인자 s에 대한 검사를 마친 후에 메모리 할당을 해야 비교적 안전하다.
             elem = new int[s];
         }
-        /* 아래의 예전 코드는 위험한 생성자 코드다. int s 를 검사하기도 전에 elem 을 먼저 int s 로 초기화 해버리기 때문이다.
+        /* 아래의 예전 코드는 위험한 생성자 코드다.
+           int s 를 검사하기도 전에 elem 을 먼저 int s 로 초기화 해버리기 때문이다.
          explicit Stack(int s) :
             elem{new int[s]}, // s 가 -1 이라면? 여기가 곧바로 undefined behaviour 를 보일 수도 있다.
             sz{s},

@@ -11,3 +11,6 @@
 # window realted files
 *.exe
 *.obj
+
+# CMakeBuild files - these are one time use.
+cmake-build-debug

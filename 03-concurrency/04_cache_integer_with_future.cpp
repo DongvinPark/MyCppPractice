@@ -14,11 +14,12 @@
 cacheMap 안에 key 로는 1 ~ 100 의 정수를 담고, value 로는 key^2 값을 담는다.
 이 작업을 10 개의 스레드에게 맡기고, mutex lock을 써서 한 번에 하나의 스레드만 맵에 접근 가능하게 만든다.
 
-각각의 스레드는 1~100 의 정수가 랜덤하게 섞인 리스트를 순회하면서 맵에다가 std::shared_future<int> 객체를 등록한다.
-future 객체를 맵에 담아 둠으로써, 해당 객체가 이미 존재하는 경우 굳이 또 expensiveCompute 작업을
-시작하지 않게 만든 것이다.
+각 스레드는 1~100의 정수가 랜덤하게 섞인 리스트를 순회하면서 캐시를 조회한다.
+특정 키에 대한 작업이 아직 등록되어 있지 않으면 해당 키에 대한 shared_future를 생성하여 캐시에 등록하고 계산 작업을 시작한다.
+이미 등록된 경우에는 기존 shared_future를 가져와 해당 작업의 결과를 기다린다(중복 계산 방지용).
 
-C++ 에서 비동기 작업을 정의/활용하기 위한 주요 도구인 std::pomise / std::future / std::shared_future 를 직접 다룬다.
+C++ 에서 비동기 작업을 정의/활용하기 위한 주요 도구인
+std::pomise / std::future / std::shared_future 를 직접 다룬다.
 
 ///////////////////////
 
@@ -37,12 +38,12 @@ set_value() / set_exception(): promise에서 사용한다.
 
 get_future(): promise 객체당 딱 한 번 호출할 수 있으며, 이 promise와 연결된 future를 반환한다.
 
-get(): future에서 결과를 꺼내온다. 값이 준비될 때까지 스레드가 대기(Blocking)하며,
+get(): 결과를 반환한다. 결과가 아직 준비되지 않았다면 결과가 준비될 때까지 현재 스레드를 대기(block)시킨다.
 한 번 호출하면 값을 소비하므로 두 번 이상 호출할 수 없다.
 
-std::shared_future: 일반 future는 get()을 호출하면 권한이 소모되지만,
-여러 스레드가 동시에 같은 결과를 공유해서 읽어야 할 때는 f.share()를 통해
-std::shared_future로 변환하여 여러 곳에서 동시에 사용할 수 있다.
+std::future는 단일 소비자를 위한 객체이므로 여러 스레드가 동일한 결과를 공유하기 어렵다.
+.share()를 호출하면 std::shared_future로 변환되며,
+여러 스레드가 동일한 shared state에 대해 get()을 호출하여 같은 결과를 읽을 수 있다.
 */
 
 class FutureCache
@@ -59,9 +60,10 @@ private:
     }
 
 public:
-    std::unordered_map<int, std::shared_future<int>>& getCacheMap()
+    std::size_t cacheSize()
     {
-        return cacheMap;
+        std::lock_guard<std::mutex> lock(cacheMutex);
+        return cacheMap.size();
     }
 
     int compute(int requestNumber)
@@ -199,7 +201,7 @@ int main()
             end - begin
         ).count();
     std::cout << "Elapsed time(ms) : " << elapsed << '\n';
-    std::cout << "Cache Map size : " << futureCache.getCacheMap().size() << '\n'; // expected value : 100
+    std::cout << "Cache Map size : " << futureCache.cacheSize() << '\n'; // expected value : 100
 }//main
 
 

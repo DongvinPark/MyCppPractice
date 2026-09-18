@@ -41,10 +41,10 @@ include_directories(${Boost_INCLUDE_DIRS} src)
 # add_executable 안에는 오직 1 개의 소스 파일만 주석 해제 돼 있어야 한다.
 add_executable(MyCppPractice
         # 03-concurrency/01_fill_array.cpp
-
         # 03-concurrency/02_fill_map.cpp
         # 03-concurrency/03_fill_map_no_mutex.cpp
-        03-concurrency/04_cache_integer_with_future.cpp
+        # 03-concurrency/04_cache_integer_with_future.cpp
+        03-concurrency/05_exception_in_async.cpp
 
         # 04-boost_asio/boost_version.cpp
         # 04-boost_asio/completion_token.cpp

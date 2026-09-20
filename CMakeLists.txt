@@ -53,7 +53,8 @@ add_executable(MyCppPractice
         # 04-boost_asio/completion_token.cpp
 
         # 05-coroutine/01_coroutine_version_test.cpp
-        05-coroutine/02_fibonacci.cpp
+        # 05-coroutine/02_serial_generator.cpp
+        05-coroutine/03_fibonacci_generator.cpp
 )
 
 # Link Boost libraries and platform-specific libraries

@@ -123,12 +123,13 @@ for(int i = 0; i < THREAD_COUNT; i++){
         auto start = std::chrono::high_resolution_clock::now();
         startGate.wait();
 
-        while(!blockingQueue.is_empty()){
+        while(true){
           auto taskPtr = blockingQueue.poll();
           if(taskPtr != nullptr){
             taskPtr->work();
             taskDoneCnt++;
           }
+          if (taskDoneCnt >= TASK_COUNT){break;}
         }//wh
 
         auto end = std::chrono::high_resolution_clock::now();

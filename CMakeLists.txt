@@ -3,9 +3,10 @@ cmake_minimum_required(VERSION 3.16)
 # Project name and version
 project(MyCppPractice VERSION 1.0)
 
-# Set C++ standard to 20.
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+# Set C++ standard to 23
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Add platform-specific settings
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -46,10 +47,13 @@ add_executable(MyCppPractice
         # 03-concurrency/04_cache_integer_with_future.cpp
         # 03-concurrency/05_exception_in_async.cpp
         # 03-concurrency/06_blocking_queue_mutex_only.cpp
-        03-concurrency/07_blocking_queue_mutex_cv.cpp
+        # 03-concurrency/07_blocking_queue_mutex_cv.cpp
 
         # 04-boost_asio/boost_version.cpp
         # 04-boost_asio/completion_token.cpp
+
+        # 05-coroutine/01_coroutine_version_test.cpp
+        05-coroutine/02_fibonacci.cpp
 )
 
 # Link Boost libraries and platform-specific libraries

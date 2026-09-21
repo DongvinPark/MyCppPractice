@@ -28,6 +28,61 @@ yield_void
 unhandled_exception
 get_return_object
 등을 정의해줘야 하며, 이것들이 정의되지 않거나 생략되면 처음부터 컴파일조차 되지 않는다.
+
+제어 흐름을 보면 아래와 같다.
+count_to(5)
+    │
+    ▼
+promise_type 생성
+    │
+    ▼
+get_return_object()
+    │
+    ▼
+SimpleSerialGenerator 반환
+    │
+    ▼
+initial_suspend()
+    │
+    ▼
+      [SUSPENDED]
+    │
+    │ handle.resume()
+    ▼
+for문 실행
+    │
+    ▼
+co_yield 1
+    │
+    ▼
+yield_value(1)
+    │
+    ▼
+      [SUSPENDED]
+    │
+    │ handle.resume()
+    ▼
+co_yield 2
+    │
+    ▼
+yield_value(2)
+    │
+    ▼
+      [SUSPENDED]
+    │
+   ...
+    │
+    ▼
+함수 종료
+    │
+    ▼
+final_suspend()
+    │
+    ▼
+      [SUSPENDED]
+    │
+    ▼
+handle.destroy()
 */
 
 class SimpleSerialGenerator {

@@ -20,6 +20,34 @@ ThreadLocalRandom 난수에 의해서 결정된다.
 06_blocking_queue_mutex_only.cpp 버전과 달리, condition_variable 을 사용한다.
 따라서 큐가 비어 있을 때 poll()을 호출한 스레드는 큐에 뭔가 채워질때까지 기다릴 수 있게 되며,
 00 mutex only 버전과 달리 '너무 일찍 시작한 컨슈머 스레드들'이 빨리 종료되버리는 문제를 해결한다.
+
+M1 Ultra chip Mac Studio에서 테스트 해보면 아래와 같다.
+/Users/dongvin99/Documents/MyCppPractice/cmake-build-debug/MyCppPractice
+task processing time(ms) : 6422 / thread id : 0x170223000 / task done cnt 1000
+task processing time(ms) : 6507 / thread id : 0x16fe4f000 / task done cnt 1000
+task processing time(ms) : 6543 / thread id : 0x17033b000 / task done cnt 1000
+task processing time(ms) : 6553 / thread id : 0x16fff3000 / task done cnt 1000
+task processing time(ms) : 6588 / thread id : 0x1702af000 / task done cnt 1000
+task processing time(ms) : 6596 / thread id : 0x17007f000 / task done cnt 1000
+task processing time(ms) : 6686 / thread id : 0x170197000 / task done cnt 1000
+task processing time(ms) : 6720 / thread id : 0x16ff67000 / task done cnt 1000
+task processing time(ms) : 6730 / thread id : 0x17010b000 / task done cnt 1000
+task processing time(ms) : 6762 / thread id : 0x16fedb000 / task done cnt 1000
+Execution time(ms) : 6762
+
+06 버전의 테스트 결과와 비교해보면, 약 600 밀리초 빨라졌음을 알 수 있다.
+/Users/dongvin99/Documents/MyCppPractice/cmake-build-debug/MyCppPractice
+task processing time(ms) : 0 / thread id : 0x16bf3f000 / task done cnt 0
+task processing time(ms) : 7346 / thread id : 0x16beb3000 / task done cnt 1097
+task processing time(ms) : 7347 / thread id : 0x16bbf7000 / task done cnt 1099
+task processing time(ms) : 7348 / thread id : 0x16bb6b000 / task done cnt 1087
+task processing time(ms) : 7348 / thread id : 0x16ba53000 / task done cnt 1115
+task processing time(ms) : 7348 / thread id : 0x16bd0f000 / task done cnt 1135
+task processing time(ms) : 7348 / thread id : 0x16bd9b000 / task done cnt 1117
+task processing time(ms) : 7350 / thread id : 0x16be27000 / task done cnt 1122
+task processing time(ms) : 7353 / thread id : 0x16badf000 / task done cnt 1123
+task processing time(ms) : 7355 / thread id : 0x16bc83000 / task done cnt 1105
+Execution time(ms) : 7356
 */
 
 constexpr int THREAD_COUNT = 10;

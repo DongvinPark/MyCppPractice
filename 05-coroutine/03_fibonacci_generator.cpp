@@ -2,6 +2,14 @@
 #include <generator>
 
 /*
+코루틴은 C++ 20에서 도입 됐지만, 제대로 활용하려면
+C++ 버전을 23 혹은 그 이상으로 맞춰야 한다. 또한 컴파일러의 종류에 따라서 C++ 23으로
+맞춰져 있더라도 해당 컴파일러에서는 std::generator 같은 코루틴 객체들이 구현이 안 돼 있을 수도 있다.
+테스트 결과는 다음과 같다.
+Windows : MSVC(Visual Studio 2026) 사용 가능,
+M1 Ultra chip Mac Studio : Apple Clang 사용 불가능,
+Linux(Ubuntu) : 테스트 미완.
+
 다음은 C++ Coroutine 이 무엇이고, 언제 사용하는지에 대한 챗 GPT의 요약이다.
 
 >>> Coroutine은

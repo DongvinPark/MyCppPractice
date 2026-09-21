@@ -27,4 +27,4 @@
 
 ## Windows 환경 CLion에서 실행하는 경우
 - Visual Studio 2026 Community 버전을 설치한 후, CLion의 Setting > Build,Execution,Deployment > ToolChains 에 Visual Studio 환경을 추가한다.
-- Setting > Build,Eexcution,Deployment > CMake 에서 툴체인을 진전에 셋팅했던 Visual Studio로 설정한다. 이때, Generator를 반드시 default : detected Ninja 로 설정해줘야 한다. 그래야 MSVC 구현체를 정확하게 찾아낸다. 
+- Setting > Build,Eexcution,Deployment > CMake 에서 툴체인을 직전에 셋팅했던 Visual Studio로 설정한다. 이때, Generator를 반드시 default : detected Ninja 로 설정해야 한다. 그래야 MSVC 구현체를 정확하게 찾아낸다. 

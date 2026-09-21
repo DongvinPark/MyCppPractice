@@ -10,6 +10,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Add platform-specific settings
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    # MSVC가 소스 파일을 UTF-8로 해석하도록 설정.
+    # Windows 기본 코드 페이지(CP949)로 인한 한글 주석/문자열
+    # encoding 문제 및 연쇄적인 syntax error를 방지한다.
+    add_compile_options(/utf-8)
+
     # Set toolchain for vcpkg (Windows only)
     set(CMAKE_TOOLCHAIN_FILE "C:/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
 
@@ -48,7 +53,7 @@ add_executable(MyCppPractice
         # 03-concurrency/05_exception_in_async.cpp
         # 03-concurrency/06_blocking_queue_mutex_only.cpp
         # 03-concurrency/07_blocking_queue_mutex_cv.cpp
-        03-concurrency/08_stop_thread_by_stop_token.cpp
+        # 03-concurrency/08_stop_thread_by_stop_token.cpp
 
         # 04-boost_asio/boost_version.cpp
         # 04-boost_asio/completion_token.cpp
@@ -56,7 +61,7 @@ add_executable(MyCppPractice
         # 05-coroutine/01_coroutine_version_test.cpp
         # 05-coroutine/02_serial_generator.cpp
         # 05-coroutine/03_fibonacci_generator.cpp
-        # 05-coroutine/04_cpp20_serial.cpp
+        05-coroutine/04_cpp20_serial.cpp
 )
 
 # Link Boost libraries and platform-specific libraries

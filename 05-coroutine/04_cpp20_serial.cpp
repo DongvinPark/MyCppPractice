@@ -40,7 +40,7 @@ public:
                 std::coroutine_handle<promise_type>::from_promise(*this)
             };
         }
-    };
+    };//end of internal promise_type for coroutine class.
 
 private:
     std::coroutine_handle<promise_type> handle;
@@ -122,7 +122,7 @@ public:
     Iterator end() {
         return Iterator(this, true);
     }
-};
+};// end of SimpleSerialGenerator
 
 
 // =========================================================

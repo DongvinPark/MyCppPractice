@@ -15,6 +15,19 @@ C++ 버전을 23 으로 올린 후 std::lib 내의 코루틴 관련 클해스들
 아래는 coroutine 및 iterator를 이용해서
 std::generator와 비슷하게 range-based for를 사용할 수 있도록
 간단하게 구현한 예제이며, Chat GPT를 활용했다.
+
+C++20 표준은 coroutine을 구현하기 위한 일정한 Promise Type Protocol을 정의하고,
+compiler는 그 protocol에 맞는 promise_type을 이용하여 coroutine state machine과
+coroutine frame을 생성한다.
+
+그래서 std::generator<T, T> 클래스를 대신할 SimpleSerialGenerator 를 직접 정의할 때,
+initial_suspend
+final_suspend
+return_void
+yield_void
+unhandled_exception
+get_return_object
+등을 정의해줘야 하며, 이것들이 정의되지 않거나 생략되면 처음부터 컴파일조차 되지 않는다.
 */
 
 class SimpleSerialGenerator {

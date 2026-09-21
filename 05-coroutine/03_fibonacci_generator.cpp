@@ -42,7 +42,7 @@ async_read(socket, buffer,
 
     }); // async_read 범위 소괄호.
 ---------
-코루틴을 쓰면 이와 같은 비동비 코드를 serialized 하게(즉, 쉽게) 작성할 수 있다.
+코루틴을 쓰면 이와 같은 비동기 코드를 serialized 하게(즉, 쉽게) 작성할 수 있다.
 Task handle() {
     auto data = co_await async_read(...);
     auto result = process(data);

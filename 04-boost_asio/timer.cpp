@@ -1,4 +1,5 @@
 #include<iostream>
+#include<thread>
 #include<boost/asio.hpp>
 
 using namespace std;
@@ -6,7 +7,7 @@ using namespace std;
 void runSyncBlockingTimer() {
 	boost::asio::io_context io;
 	boost::asio::steady_timer t(io, boost::asio::chrono::seconds(5));
-	cout << "timer init completed. you will be blocked for 5 seconds.\n";
+	cout << "sync blocking timer was initialized. you will be blocked for 5 seconds.\n";
 	t.wait();
 	cout << "Sync Blocking Timer ended. You are Freed!\n";
 }
@@ -19,8 +20,8 @@ void runAsyncNonBlockingTimer() {
 	boost::asio::io_context io;
 	boost::asio::steady_timer t(io, boost::asio::chrono::seconds(5));
 	t.async_wait(&completionHandlerPrint);
-	cout << "\ntimer init completed. you can do what you want for 5 seconds.\n";
-	
+	cout << "\nAsync timer was initialized. you can do what you want for 5 seconds.\n";
+
 	// 여기의 for 루프가 바로 '딴짓'을 하는 부분이다.
 	// 메인 스레드가 블록 되지 않았기 때문에 이런 '딴짓'이 가능하다.
 	for (int i = 0; i < 5; ++i) {

@@ -20,16 +20,24 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
     # Find Boost using vcpkg
     find_package(Boost REQUIRED COMPONENTS system)
+    find_package(OpenSSL REQUIRED)
 
-    # Additional libraries required on Windows
-    set(PLATFORM_LIBS ws2_32)
+    # Additional libraries required on Windows : boost::redis 를 사용하기 위함이다.
+    set(PLATFORM_LIBS
+            ws2_32
+            OpenSSL::SSL
+            OpenSSL::Crypto
+    )
 
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin") # M chip Mac
     # Find Boost using Homebrew (macOS only)
     find_package(Boost REQUIRED)
+    find_package(OpenSSL REQUIRED) # for boost::redis
 
-    # No additional libraries required for macOS
-    set(PLATFORM_LIBS "")
+    set(PLATFORM_LIBS
+            OpenSSL::SSL
+            OpenSSL::Crypto
+    )
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # Find Boost
@@ -37,6 +45,14 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
     # Link pthread library for Linux
     set(PLATFORM_LIBS pthread)
+    find_package(OpenSSL REQUIRED)
+
+    set(PLATFORM_LIBS
+            pthread
+            OpenSSL::SSL
+            OpenSSL::Crypto
+    )
+
 endif()
 
 # Include directories
@@ -57,12 +73,14 @@ add_executable(MyCppPractice
 
         # 04-boost_asio/boost_version.cpp
         # 04-boost_asio/completion_token.cpp
-        04-boost_asio/timer.cpp
+        # 04-boost_asio/timer.cpp
 
         # 05-coroutine/01_coroutine_version_test.cpp
         # 05-coroutine/02_serial_generator.cpp
         # 05-coroutine/03_fibonacci_generator.cpp
         # 05-coroutine/04_cpp20_serial.cpp
+
+        06-boost-redis/01_redis_pubsub_listener.cpp
 )
 
 # Link Boost libraries and platform-specific libraries

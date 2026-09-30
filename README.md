@@ -20,6 +20,7 @@
 ---
 
 ## Boost 라이브러리를 써야 하는 경우
+- Boost 라이브러리는 2026년 9월 30일 현재 1.92 버전으로 설정해야 이 프로젝트 안에 있는 모든 예제들을 실행시킬 수 있음. 특히, boost-redis 부분 예제들까지.
 - CMakeLists.txt의 add_executable(...) 에 파일명(ex : 04-boost-asio/completion_token.cpp)을 집어 넣고 CLion에서 CMake 빌드 다시 실행 한 후, MyCppPractice configuration 선택해서 '초록색 실행 버튼( ▶️ 모양)' 버틑 눌러서 실행.
 - CLion에서 CMakeLists.txt 를 인식하지 못할 경우엔 프로젝트 루트 디렉토리 내의 .idea 폴더 삭제후 다시 CLion 으로 오폰하면 Cmake Wizard 가 뜨면서 CMake project 로 프로젝트가 다시 빌드 됨.
 

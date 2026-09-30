@@ -15,7 +15,8 @@
 /*
  * Boost Redis 와 coroutine 을 활용해서 Redis Pub/Sub 메시지 리스너를 구현한 아래의 예제를 참고했다.
  * https://github.com/boostorg/redis/blob/master/example/cpp20_subscriber.cpp#L68
- * C++20 또는 그 이상 버전이 필요하며, 로컬 머신에서 redis가 6379 포트로 돌고 있어야 한다.
+ * C++20 또는 그 이상 버전과 boost 1.92 버전 혹은 그 이상이 필요하며,
+ * 로컬 머신에서 redis가 6379 포트로 돌고 있어야 한다.
  *
  * 이 예제는 레디스 Pub/Sub 채널을 계속 리스닝 하고 있는다.
  * 레디스 pub/sub 채널에 메시지를 푸시하려면 아래의 명령어를 쓰면 된다.

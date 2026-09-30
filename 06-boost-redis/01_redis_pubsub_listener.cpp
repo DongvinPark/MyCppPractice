@@ -19,6 +19,8 @@
  * 로컬 머신에서 redis가 6379 포트로 돌고 있어야 한다.
  *
  * 이 예제는 레디스 Pub/Sub 채널을 계속 리스닝 하고 있는다.
+ * M1 macOS와 Windows 11 에서 테스트를 완료했다.
+ *
  * 레디스 pub/sub 채널에 메시지를 푸시하려면 아래의 명령어를 쓰면 된다.
  * $ redis-cli PUBLISH chat "hello redis PubSub listener in C++20"
  *

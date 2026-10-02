@@ -59,7 +59,7 @@ auto pub_sub_listener(
     }
 
     // 권한 부족 등의 이유로 아래의 에러체크문이 실행될 수도 있다.
-    if (ec)
+    if (resp.has_error())
     {
       std::cerr << "The receive response contains an error: "
         << resp.error().diagnostic << "\n";
